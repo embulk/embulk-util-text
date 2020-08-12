@@ -1,4 +1,4 @@
-package org.embulk.spi.util;
+package org.embulk.util.text;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -15,6 +15,7 @@ import org.embulk.config.Config;
 import org.embulk.config.ConfigDefault;
 import org.embulk.config.Task;
 import org.embulk.spi.FileInput;
+import org.embulk.spi.util.FileInputInputStream;
 
 public class LineDecoder implements AutoCloseable, Iterable<String> {
     // TODO optimize
