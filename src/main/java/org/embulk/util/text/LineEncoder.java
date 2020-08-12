@@ -26,7 +26,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import org.embulk.spi.BufferAllocator;
 import org.embulk.spi.FileOutput;
-import org.embulk.spi.util.FileOutputOutputStream;
+import org.embulk.util.file.FileOutputOutputStream;
 
 public class LineEncoder implements AutoCloseable {
     // TODO optimize

@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.embulk.spi.FileInput;
-import org.embulk.spi.util.FileInputInputStream;
+import org.embulk.util.file.FileInputInputStream;
 
 public class LineDecoder implements AutoCloseable, Iterable<String> {
     // TODO optimize
