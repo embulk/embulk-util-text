@@ -18,14 +18,15 @@ import org.embulk.spi.util.FileOutputOutputStream;
 public class LineEncoder implements AutoCloseable {
     // TODO optimize
 
-    public LineEncoder(FileOutput out, EncoderTask task) {
+    public LineEncoder(final FileOutput out, final EncoderTask task) {
         this.newline = task.getNewline().getString();
         this.underlyingFileOutput = out;
-        CharsetEncoder encoder = task.getCharset()
+        final CharsetEncoder encoder = task.getCharset()
                 .newEncoder()
                 .onMalformedInput(CodingErrorAction.REPLACE)  // TODO configurable?
                 .onUnmappableCharacter(CodingErrorAction.REPLACE);  // TODO configurable?
-        this.outputStream = new FileOutputOutputStream(underlyingFileOutput, task.getBufferAllocator(), FileOutputOutputStream.CloseMode.FLUSH_FINISH);
+        this.outputStream = new FileOutputOutputStream(
+                underlyingFileOutput, task.getBufferAllocator(), FileOutputOutputStream.CloseMode.FLUSH_FINISH);
 
         this.writer = new BufferedWriter(new OutputStreamWriter(outputStream, encoder), 32 * 1024);
     }
@@ -33,39 +34,39 @@ public class LineEncoder implements AutoCloseable {
     public interface EncoderTask extends Task {
         @Config("charset")
         @ConfigDefault("\"utf-8\"")
-        public Charset getCharset();
+        Charset getCharset();
 
         @Config("newline")
         @ConfigDefault("\"CRLF\"")
-        public Newline getNewline();
+        Newline getNewline();
 
         @ConfigInject
-        public BufferAllocator getBufferAllocator();
+        BufferAllocator getBufferAllocator();
     }
 
     public void addNewLine() {
         try {
-            writer.append(newline);
-        } catch (IOException ex) {
+            this.writer.append(this.newline);
+        } catch (final IOException ex) {
             // unexpected
             throw new RuntimeException(ex);
         }
     }
 
-    public void addLine(String line) {
+    public void addLine(final String line) {
         try {
-            writer.append(line);
-        } catch (IOException ex) {
+            this.writer.append(line);
+        } catch (final IOException ex) {
             // unexpected
             throw new RuntimeException(ex);
         }
-        addNewLine();
+        this.addNewLine();
     }
 
-    public void addText(String text) {
+    public void addText(final String text) {
         try {
-            writer.append(text);
-        } catch (IOException ex) {
+            this.writer.append(text);
+        } catch (final IOException ex) {
             // unexpected
             throw new RuntimeException(ex);
         }
@@ -73,22 +74,22 @@ public class LineEncoder implements AutoCloseable {
 
     public void nextFile() {
         try {
-            writer.flush();
-        } catch (IOException ex) {
+            this.writer.flush();
+        } catch (final IOException ex) {
             // unexpected
             throw new RuntimeException(ex);
         }
-        outputStream.nextFile();
+        this.outputStream.nextFile();
     }
 
     public void finish() {
         try {
-            if (writer != null) {
-                writer.close();  // FLUSH_FINISH
-                writer = null;
+            if (this.writer != null) {
+                this.writer.close();  // FLUSH_FINISH
+                this.writer = null;
                 // underlyingFileOutput.finish() is already called by close() because CloseMode is FLUSH_FINISH
             }
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -96,12 +97,12 @@ public class LineEncoder implements AutoCloseable {
     @Override
     public void close() {
         try {
-            if (writer != null) {
-                writer.close();  // FLUSH_FINISH
-                writer = null;
+            if (this.writer != null) {
+                this.writer.close();  // FLUSH_FINISH
+                this.writer = null;
             }
-            underlyingFileOutput.close();  // this is necessary because CloseMode is not FLUSH_FINISH_CLOSE
-        } catch (IOException ex) {
+            this.underlyingFileOutput.close();  // this is necessary because CloseMode is not FLUSH_FINISH_CLOSE
+        } catch (final IOException ex) {
             // unexpected
             throw new RuntimeException(ex);
         }

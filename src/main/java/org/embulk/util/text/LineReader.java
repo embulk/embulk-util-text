@@ -11,7 +11,7 @@ import java.io.Reader;
  * This class is not thread-safe.
  */
 class LineReader extends BufferedReader {
-    private LineReader(Reader reader, LineDelimiter lineDelimiter, int bufferSize) {
+    private LineReader(final Reader reader, final LineDelimiter lineDelimiter, final int bufferSize) {
         super(reader);
 
         this.lineDelimiter = lineDelimiter;
@@ -21,7 +21,7 @@ class LineReader extends BufferedReader {
         this.charsRead = 0;
     }
 
-    static BufferedReader of(Reader reader, LineDelimiter lineDelimiter, int bufferSize) {
+    static BufferedReader of(final Reader reader, final LineDelimiter lineDelimiter, final int bufferSize) {
         if (lineDelimiter == null) {
             return new BufferedReader(reader);
         }
@@ -32,23 +32,24 @@ class LineReader extends BufferedReader {
     public String readLine() throws IOException {
         StringBuilder line = null;
         char prevChar = Character.MIN_VALUE;
+
         bufferLoop:
-        while (offset != UNREAD || (charsRead = this.read(buffer)) != -1) {
-            if (offset == UNREAD) {
+        while (this.offset != UNREAD || (charsRead = this.read(buffer)) != -1) {
+            if (this.offset == UNREAD) {
                 // Initialize offset after read chars to buffer
-                offset = 0;
+                this.offset = 0;
             }
             if (line == null) {
                 // Initialize line's buffer for the first loop
                 line = new StringBuilder();
             }
             for (int i = offset; i < charsRead; i++) {
-                char c = buffer[i];
+                final char c = buffer[i];
                 boolean isEol = false;
                 switch (lineDelimiter) {
                     case CR:
                         if (c == '\r') {
-                            Character next = readNext();
+                            final Character next = this.readNext();
                             if (next == null || next != '\n') {
                                 isEol = true;
                             }
@@ -67,9 +68,9 @@ class LineReader extends BufferedReader {
                         }
                         break;
                     default:
-                        throw new IllegalStateException("Unsupported line delimiter " + lineDelimiter);
+                        throw new IllegalStateException("Unsupported line delimiter " + this.lineDelimiter);
                 }
-                offset++;
+                this.offset++;
                 if (isEol) {
                     break bufferLoop;
                 }
@@ -77,7 +78,7 @@ class LineReader extends BufferedReader {
                 prevChar = c;
             }
             // Set "UNREAD" to read next chars
-            offset = UNREAD;
+            this.offset = UNREAD;
         }
 
         if (line != null) {
@@ -87,13 +88,13 @@ class LineReader extends BufferedReader {
     }
 
     private Character readNext() throws IOException {
-        if (offset < charsRead - 1) {
+        if (this.offset < this.charsRead - 1) {
             // From buffer
-            return buffer[offset + 1];
+            return this.buffer[this.offset + 1];
         }
         // From reader
         this.mark(1);
-        char[] tmp = new char[1];
+        final char[] tmp = new char[1];
         final int read = this.read(tmp);
         this.reset();
         if (read == -1) {

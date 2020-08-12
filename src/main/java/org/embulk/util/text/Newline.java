@@ -6,7 +6,7 @@ public enum Newline {
     CR("\r"),
     ;
 
-    private Newline(String string) {
+    private Newline(final String string) {
         this.string = string;
         this.firstCharCode = string.charAt(0);
         if (string.length() > 1) {
