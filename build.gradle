@@ -19,10 +19,20 @@ configurations {
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
+    compileOnly "org.embulk:embulk-api:0.10.8"
+    compileOnly "org.embulk:embulk-core:0.10.8"
+
     testImplementation "junit:junit:4.13"
+    testImplementation "org.embulk:embulk-api:0.10.8"
+    testImplementation "org.embulk:embulk-core:0.10.8"
+    testImplementation "org.embulk:embulk-core:0.10.8:tests"
+    testImplementation "org.embulk:embulk-deps-buffer:0.10.8"
+    testImplementation "org.embulk:embulk-deps-config:0.10.8"
+    testImplementation "org.embulk:embulk-deps-timestamp:0.10.8"
 }
 
 tasks.withType(JavaCompile) {
