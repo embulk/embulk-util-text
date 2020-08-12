@@ -3,6 +3,7 @@ package org.embulk.util.text;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
@@ -49,7 +50,7 @@ public class LineEncoder implements AutoCloseable {
             this.writer.append(this.newline);
         } catch (final IOException ex) {
             // unexpected
-            throw new RuntimeException(ex);
+            throw new UncheckedIOException(ex);
         }
     }
 
@@ -58,7 +59,7 @@ public class LineEncoder implements AutoCloseable {
             this.writer.append(line);
         } catch (final IOException ex) {
             // unexpected
-            throw new RuntimeException(ex);
+            throw new UncheckedIOException(ex);
         }
         this.addNewLine();
     }
@@ -68,7 +69,7 @@ public class LineEncoder implements AutoCloseable {
             this.writer.append(text);
         } catch (final IOException ex) {
             // unexpected
-            throw new RuntimeException(ex);
+            throw new UncheckedIOException(ex);
         }
     }
 
@@ -77,7 +78,7 @@ public class LineEncoder implements AutoCloseable {
             this.writer.flush();
         } catch (final IOException ex) {
             // unexpected
-            throw new RuntimeException(ex);
+            throw new UncheckedIOException(ex);
         }
         this.outputStream.nextFile();
     }
@@ -90,7 +91,7 @@ public class LineEncoder implements AutoCloseable {
                 // underlyingFileOutput.finish() is already called by close() because CloseMode is FLUSH_FINISH
             }
         } catch (final IOException ex) {
-            throw new RuntimeException(ex);
+            throw new UncheckedIOException(ex);
         }
     }
 
@@ -104,7 +105,7 @@ public class LineEncoder implements AutoCloseable {
             this.underlyingFileOutput.close();  // this is necessary because CloseMode is not FLUSH_FINISH_CLOSE
         } catch (final IOException ex) {
             // unexpected
-            throw new RuntimeException(ex);
+            throw new UncheckedIOException(ex);
         }
     }
 

@@ -3,6 +3,7 @@ package org.embulk.util.text;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
@@ -59,7 +60,7 @@ public class LineDecoder implements AutoCloseable, Iterable<String> {
             return this.reader.readLine();
         } catch (final IOException ex) {
             // unexpected
-            throw new RuntimeException(ex);
+            throw new UncheckedIOException(ex);
         }
     }
 
@@ -69,7 +70,7 @@ public class LineDecoder implements AutoCloseable, Iterable<String> {
             this.reader.close();
         } catch (final IOException ex) {
             // unexpected
-            throw new RuntimeException(ex);
+            throw new UncheckedIOException(ex);
         }
     }
 
@@ -134,7 +135,7 @@ public class LineDecoder implements AutoCloseable, Iterable<String> {
                     this.reader.reset();
                 } catch (final IOException ex) {
                     // unexpected
-                    throw new RuntimeException(ex);
+                    throw new UncheckedIOException(ex);
                 }
             }
         }
