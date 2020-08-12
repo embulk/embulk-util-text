@@ -26,7 +26,6 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import org.embulk.spi.FileInput;
 import org.embulk.util.file.FileInputInputStream;
 
