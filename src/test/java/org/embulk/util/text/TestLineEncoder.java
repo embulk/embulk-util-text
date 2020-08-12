@@ -17,6 +17,8 @@
 package org.embulk.util.text;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.embulk.EmbulkTestRuntime;
 import org.embulk.config.ConfigSource;
 import org.embulk.spi.Buffer;
@@ -30,18 +32,15 @@ public class TestLineEncoder {
     @Rule
     public EmbulkTestRuntime runtime = new EmbulkTestRuntime();
 
-    private LineEncoder newEncoder(String charset, String newline,
+    private LineEncoder newEncoder(Charset charset, Newline newline,
             FileOutput output) throws Exception {
-        ConfigSource config = Exec.newConfigSource()
-                .set("charset", charset)
-                .set("newline", newline);
-        return new LineEncoder(output, config.loadConfig(LineEncoder.EncoderTask.class));
+        return LineEncoder.of(output, newline, charset, Exec.getBufferAllocator());
     }
 
     @Test
     public void testAddLine() throws Exception {
         try (MockFileOutput output = new MockFileOutput()) {
-            LineEncoder encoder = newEncoder("utf-8", "LF", output);
+            LineEncoder encoder = newEncoder(StandardCharsets.UTF_8, Newline.LF, output);
             encoder.nextFile();
             for (String line : new String[] { "abc", "日本語(Japanese)" }) {
                 encoder.addLine(line);
@@ -60,7 +59,7 @@ public class TestLineEncoder {
     @Test
     public void testAddTextAddNewLine() throws Exception {
         try (MockFileOutput output = new MockFileOutput()) {
-            LineEncoder encoder = newEncoder("utf-8", "LF", output);
+            LineEncoder encoder = newEncoder(StandardCharsets.UTF_8, Newline.LF, output);
             encoder.nextFile();
             for (String line : new String[] { "abc", "日本語(Japanese)" }) {
                 encoder.addText(line);
@@ -80,7 +79,7 @@ public class TestLineEncoder {
     @Test
     public void testNewLine() throws Exception {
         try (MockFileOutput output = new MockFileOutput()) {
-            LineEncoder encoder = newEncoder("utf-8", "CRLF", output);
+            LineEncoder encoder = newEncoder(StandardCharsets.UTF_8, Newline.CRLF, output);
             encoder.nextFile();
             for (String line : new String[] { "abc", "日本語(Japanese)" }) {
                 encoder.addLine(line);
@@ -99,7 +98,7 @@ public class TestLineEncoder {
     @Test
     public void testCharset() throws Exception {
         try (MockFileOutput output = new MockFileOutput()) {
-            LineEncoder encoder = newEncoder("MS932", "CR", output);
+            LineEncoder encoder = newEncoder(Charset.forName("MS932"), Newline.CR, output);
             encoder.nextFile();
             for (String line : new String[] { "abc", "日本語(Japanese)" }) {
                 encoder.addLine(line);
