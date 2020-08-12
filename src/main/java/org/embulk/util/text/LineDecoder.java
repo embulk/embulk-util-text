@@ -20,6 +20,18 @@ import org.embulk.spi.util.FileInputInputStream;
 public class LineDecoder implements AutoCloseable, Iterable<String> {
     // TODO optimize
 
+    public LineDecoder(FileInput in, DecoderTask task) {
+        this.charset = task.getCharset();
+        this.inputStream = new FileInputInputStream(in);
+        CharsetDecoder decoder = charset
+                .newDecoder()
+                .onMalformedInput(CodingErrorAction.REPLACE)  // TODO configurable?
+                .onUnmappableCharacter(CodingErrorAction.REPLACE);  // TODO configurable?
+        this.reader = LineReader.of(
+                new InputStreamReader(inputStream, decoder), task.getLineDelimiterRecognized().orElse(null), 256
+        );
+    }
+
     public static interface DecoderTask extends Task {
         @Config("charset")
         @ConfigDefault("\"utf-8\"")
@@ -34,28 +46,70 @@ public class LineDecoder implements AutoCloseable, Iterable<String> {
         public Optional<LineDelimiter> getLineDelimiterRecognized();
     }
 
-    private final FileInputInputStream inputStream;
-    private final BufferedReader reader;
-    private final Charset charset;
-
-    public LineDecoder(FileInput in, DecoderTask task) {
-        this.charset = task.getCharset();
-        CharsetDecoder decoder = charset
-                .newDecoder()
-                .onMalformedInput(CodingErrorAction.REPLACE)  // TODO configurable?
-                .onUnmappableCharacter(CodingErrorAction.REPLACE);  // TODO configurable?
-        this.inputStream = new FileInputInputStream(in);
-        this.reader = LineReader.of(
-                new InputStreamReader(inputStream, decoder), task.getLineDelimiterRecognized().orElse(null), 256
-        );
-    }
-
     public boolean nextFile() {
         boolean has = inputStream.nextFile();
         if (has && charset.equals(UTF_8)) {
             skipBom();
         }
         return has;
+    }
+
+    public String poll() {
+        try {
+            return reader.readLine();
+        } catch (IOException ex) {
+            // unexpected
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    public void close() {
+        try {
+            reader.close();
+        } catch (IOException ex) {
+            // unexpected
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return new Ite(this);
+    }
+
+    private static class Ite implements Iterator<String> {
+        public Ite(LineDecoder self) {
+            // TODO non-static inner class causes a problem with JRuby
+            this.self = self;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (self.nextLine != null) {
+                return true;
+            } else {
+                self.nextLine = self.poll();
+                return self.nextLine != null;
+            }
+        }
+
+        @Override
+        public String next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            String l = self.nextLine;
+            self.nextLine = null;
+            return l;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        private LineDecoder self;
     }
 
     private void skipBom() {
@@ -86,61 +140,9 @@ public class LineDecoder implements AutoCloseable, Iterable<String> {
         }
     }
 
-    public String poll() {
-        try {
-            return reader.readLine();
-        } catch (IOException ex) {
-            // unexpected
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public void close() {
-        try {
-            reader.close();
-        } catch (IOException ex) {
-            // unexpected
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public Iterator<String> iterator() {
-        return new Ite(this);
-    }
-
     private String nextLine;
 
-    private static class Ite implements Iterator<String> {
-        private LineDecoder self;
-
-        public Ite(LineDecoder self) {
-            // TODO non-static inner class causes a problem with JRuby
-            this.self = self;
-        }
-
-        @Override
-        public boolean hasNext() {
-            if (self.nextLine != null) {
-                return true;
-            } else {
-                self.nextLine = self.poll();
-                return self.nextLine != null;
-            }
-        }
-
-        @Override
-        public String next() {
-            if (!hasNext()) {
-                throw new NoSuchElementException();
-            }
-            String l = self.nextLine;
-            self.nextLine = null;
-            return l;
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-    }
+    private final Charset charset;
+    private final FileInputInputStream inputStream;
+    private final BufferedReader reader;
 }

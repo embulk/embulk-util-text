@@ -11,25 +11,21 @@ import java.io.Reader;
  * This class is not thread-safe.
  */
 class LineReader extends BufferedReader {
-    private static final int UNREAD = -1;
-    private final LineDelimiter lineDelimiter;
-    private final char[] buffer;
-    private int offset;
-    private int charsRead;
+    private LineReader(Reader reader, LineDelimiter lineDelimiter, int bufferSize) {
+        super(reader);
+
+        this.lineDelimiter = lineDelimiter;
+        this.buffer = new char[bufferSize];
+
+        this.offset = UNREAD;
+        this.charsRead = 0;
+    }
 
     static BufferedReader of(Reader reader, LineDelimiter lineDelimiter, int bufferSize) {
         if (lineDelimiter == null) {
             return new BufferedReader(reader);
         }
         return new LineReader(reader, lineDelimiter, bufferSize);
-    }
-
-    private LineReader(Reader reader, LineDelimiter lineDelimiter, int bufferSize) {
-        super(reader);
-        this.lineDelimiter = lineDelimiter;
-        this.buffer = new char[bufferSize];
-        this.offset = UNREAD;
-        this.charsRead = 0;
     }
 
     @Override
@@ -105,4 +101,12 @@ class LineReader extends BufferedReader {
         }
         return tmp[0];
     }
+
+    private static final int UNREAD = -1;
+
+    private int offset;
+    private int charsRead;
+
+    private final LineDelimiter lineDelimiter;
+    private final char[] buffer;
 }

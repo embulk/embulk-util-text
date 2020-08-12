@@ -18,6 +18,18 @@ import org.embulk.spi.util.FileOutputOutputStream;
 public class LineEncoder implements AutoCloseable {
     // TODO optimize
 
+    public LineEncoder(FileOutput out, EncoderTask task) {
+        this.newline = task.getNewline().getString();
+        this.underlyingFileOutput = out;
+        CharsetEncoder encoder = task.getCharset()
+                .newEncoder()
+                .onMalformedInput(CodingErrorAction.REPLACE)  // TODO configurable?
+                .onUnmappableCharacter(CodingErrorAction.REPLACE);  // TODO configurable?
+        this.outputStream = new FileOutputOutputStream(underlyingFileOutput, task.getBufferAllocator(), FileOutputOutputStream.CloseMode.FLUSH_FINISH);
+
+        this.writer = new BufferedWriter(new OutputStreamWriter(outputStream, encoder), 32 * 1024);
+    }
+
     public interface EncoderTask extends Task {
         @Config("charset")
         @ConfigDefault("\"utf-8\"")
@@ -29,22 +41,6 @@ public class LineEncoder implements AutoCloseable {
 
         @ConfigInject
         public BufferAllocator getBufferAllocator();
-    }
-
-    private final String newline;
-    private final FileOutput underlyingFileOutput;
-    private final FileOutputOutputStream outputStream;
-    private Writer writer;
-
-    public LineEncoder(FileOutput out, EncoderTask task) {
-        this.newline = task.getNewline().getString();
-        this.underlyingFileOutput = out;
-        this.outputStream = new FileOutputOutputStream(underlyingFileOutput, task.getBufferAllocator(), FileOutputOutputStream.CloseMode.FLUSH_FINISH);
-        CharsetEncoder encoder = task.getCharset()
-                .newEncoder()
-                .onMalformedInput(CodingErrorAction.REPLACE)  // TODO configurable?
-                .onUnmappableCharacter(CodingErrorAction.REPLACE);  // TODO configurable?
-        this.writer = new BufferedWriter(new OutputStreamWriter(outputStream, encoder), 32 * 1024);
     }
 
     public void addNewLine() {
@@ -110,4 +106,10 @@ public class LineEncoder implements AutoCloseable {
             throw new RuntimeException(ex);
         }
     }
+
+    private Writer writer;
+
+    private final String newline;
+    private final FileOutput underlyingFileOutput;
+    private final FileOutputOutputStream outputStream;
 }
