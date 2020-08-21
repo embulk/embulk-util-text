@@ -20,7 +20,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.embulk.EmbulkTestRuntime;
-import org.embulk.config.ConfigSource;
 import org.embulk.spi.Buffer;
 import org.embulk.spi.Exec;
 import org.embulk.spi.FileOutput;
