@@ -30,6 +30,14 @@ import java.util.Optional;
 import org.embulk.spi.FileInput;
 import org.embulk.util.file.FileInputInputStream;
 
+/**
+ * Decodes {@link org.embulk.spi.FileInput} into iteration of lines.
+ *
+ * <p>Unlike {@code embulk-core}'s {@code org.embulk.spi.util.LineDecoder}, it does not receive a task-defining
+ * interface like {@code DecoderTask}. Use {@link #of(FileInput, Charset, LineDelimiter)} instead.
+ *
+ * <pre><code>LineDecoder decoder = LineDecoder.of(fileInput, charset, null);</code></pre>
+ */
 public class LineDecoder implements AutoCloseable, Iterable<String> {
     // TODO optimize
 

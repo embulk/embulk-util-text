@@ -28,6 +28,14 @@ import org.embulk.spi.BufferAllocator;
 import org.embulk.spi.FileOutput;
 import org.embulk.util.file.FileOutputOutputStream;
 
+/**
+ * Encodes {@link java.io.BufferedWriter} as iteration of lines into {@link org.embulk.spi.FileOutput}.
+ *
+ * <p>Unlike {@code embulk-core}'s {@code org.embulk.spi.util.LineEncoder}, it does not receive a task-defining
+ * interface like {@code EncoderTask}. Use {@link #of(FileOutput, Newline, Charset, BufferAllocator)} instead.
+ *
+ * <pre><code>LineEncoder encoder = LineEncoder.of(fileOutput, newline, charset, Exec.getBufferAllocator());</code></pre>
+ */
 public class LineEncoder implements AutoCloseable {
     // TODO optimize
 
