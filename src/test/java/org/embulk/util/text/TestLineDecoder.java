@@ -26,10 +26,8 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.embulk.EmbulkTestRuntime;
-import org.embulk.config.ConfigSource;
 import org.embulk.spi.Buffer;
 import org.embulk.spi.BufferImpl;
-import org.embulk.spi.Exec;
 import org.embulk.spi.util.ListFileInput;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,43 +36,13 @@ public class TestLineDecoder {
     @Rule
     public EmbulkTestRuntime runtime = new EmbulkTestRuntime();
 
-    @Test
-    public void testDefaultValues() {
-        ConfigSource config = Exec.newConfigSource();
-        LineDecoder.DecoderTask task = config.loadConfig(LineDecoder.DecoderTask.class);
-        assertEquals(StandardCharsets.UTF_8, task.getCharset());
-        assertEquals(Newline.CRLF, task.getNewline());
-    }
-
-    @Test
-    public void testLoadConfig() {
-        ConfigSource config = Exec.newConfigSource()
-                .set("charset", "utf-16")
-                .set("newline", "CRLF")
-                .set("line_delimiter_recognized", "LF");
-        LineDecoder.DecoderTask task = config.loadConfig(LineDecoder.DecoderTask.class);
-        assertEquals(StandardCharsets.UTF_16, task.getCharset());
-        assertEquals(Newline.CRLF, task.getNewline());
-        assertEquals(LineDelimiter.LF, task.getLineDelimiterRecognized().get());
-    }
-
-    private static LineDecoder.DecoderTask getExampleConfig(Charset charset, Newline newline, LineDelimiter lineDelimiter) {
-        ConfigSource config = Exec.newConfigSource()
-                .set("charset", charset)
-                .set("newline", newline);
-        if (lineDelimiter != null) {
-            config.set("line_delimiter_recognized", lineDelimiter);
-        }
-        return config.loadConfig(LineDecoder.DecoderTask.class);
-    }
-
     private static LineDecoder newDecoder(Charset charset, Newline newline, List<Buffer> buffers) {
         return newDecoder(charset, newline, null, buffers);
     }
 
     private static LineDecoder newDecoder(Charset charset, Newline newline, LineDelimiter lineDelimiter, List<Buffer> buffers) {
         ListFileInput input = new ListFileInput(ImmutableList.of(buffers));
-        return new LineDecoder(input, getExampleConfig(charset, newline, lineDelimiter));
+        return LineDecoder.of(input, charset, lineDelimiter);
     }
 
     private static List<String> doDecode(Charset charset, Newline newline, List<Buffer> buffers) {

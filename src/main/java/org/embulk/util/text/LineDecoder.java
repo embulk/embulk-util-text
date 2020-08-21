@@ -27,40 +27,34 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import org.embulk.config.Config;
-import org.embulk.config.ConfigDefault;
-import org.embulk.config.Task;
 import org.embulk.spi.FileInput;
 import org.embulk.spi.util.FileInputInputStream;
 
 public class LineDecoder implements AutoCloseable, Iterable<String> {
     // TODO optimize
 
-    public LineDecoder(final FileInput in, final DecoderTask task) {
-        this.charset = task.getCharset();
-        this.inputStream = new FileInputInputStream(in);
-        final CharsetDecoder decoder = charset
-                .newDecoder()
-                .onMalformedInput(CodingErrorAction.REPLACE)  // TODO configurable?
-                .onUnmappableCharacter(CodingErrorAction.REPLACE);  // TODO configurable?
-        this.reader = LineReader.of(
-                new InputStreamReader(inputStream, decoder), task.getLineDelimiterRecognized().orElse(null), 256);
+    private LineDecoder(
+            final FileInputInputStream inputStream,
+            final Charset charset,
+            final BufferedReader reader) {
+        this.inputStream = inputStream;
+        this.charset = charset;
+        this.reader = reader;
 
         this.nextLine = null;
     }
 
-    public static interface DecoderTask extends Task {
-        @Config("charset")
-        @ConfigDefault("\"utf-8\"")
-        Charset getCharset();
+    public static LineDecoder of(final FileInput in, final Charset charset, final LineDelimiter lineDelimiterRecognized) {
+        final FileInputInputStream inputStream = new FileInputInputStream(in);
+        final CharsetDecoder decoder = charset
+                .newDecoder()
+                .onMalformedInput(CodingErrorAction.REPLACE)  // TODO configurable?
+                .onUnmappableCharacter(CodingErrorAction.REPLACE);  // TODO configurable?
 
-        @Config("newline")
-        @ConfigDefault("\"CRLF\"")
-        Newline getNewline();
-
-        @Config("line_delimiter_recognized")
-        @ConfigDefault("null")
-        Optional<LineDelimiter> getLineDelimiterRecognized();
+        return new LineDecoder(
+                inputStream,
+                charset,
+                LineReader.of(new InputStreamReader(inputStream, decoder), lineDelimiterRecognized, 256));
     }
 
     public boolean nextFile() {
