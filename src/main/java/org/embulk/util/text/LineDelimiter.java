@@ -1,4 +1,4 @@
-package org.embulk.spi.util;
+package org.embulk.util.text;
 
 public enum LineDelimiter {
     CRLF, LF, CR

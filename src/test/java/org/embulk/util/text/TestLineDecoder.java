@@ -1,4 +1,4 @@
-package org.embulk.spi.util;
+package org.embulk.util.text;
 
 import static org.junit.Assert.assertEquals;
 
@@ -14,6 +14,7 @@ import org.embulk.config.ConfigSource;
 import org.embulk.spi.Buffer;
 import org.embulk.spi.BufferImpl;
 import org.embulk.spi.Exec;
+import org.embulk.spi.util.ListFileInput;
 import org.junit.Rule;
 import org.junit.Test;
 

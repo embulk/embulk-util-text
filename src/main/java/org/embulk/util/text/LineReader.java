@@ -1,4 +1,4 @@
-package org.embulk.spi.util;
+package org.embulk.util.text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
