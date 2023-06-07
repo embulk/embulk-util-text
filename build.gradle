@@ -34,10 +34,10 @@ java {
 }
 
 dependencies {
-    compileOnly "org.embulk:embulk-spi:0.10.44"
+    compileOnly "org.embulk:embulk-spi:0.11"
 
     // Dependencies should be "api" so that their scope would be "compile" in "pom.xml".
-    api "org.embulk:embulk-util-file:0.1.4"
+    api "org.embulk:embulk-util-file:0.1.5"
 
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.embulk:embulk-spi:0.10.44"
@@ -55,7 +55,7 @@ javadoc {
         encoding = "UTF-8"
         overview = "src/main/html/overview.html"
         links "https://docs.oracle.com/javase/8/docs/api/"
-        links "https://dev.embulk.org/embulk-spi/0.10.44/javadoc/"
+        links "https://dev.embulk.org/embulk-spi/0.11/javadoc/"
     }
 }
 
