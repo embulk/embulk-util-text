@@ -11,7 +11,7 @@ repositories {
 }
 
 group = "org.embulk"
-version = "0.2.0-SNAPSHOT"
+version = "0.2.0"
 description = "Embulk text processor for Embulk plugins"
 
 configurations {
