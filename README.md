@@ -1,10 +1,10 @@
-Embulk Utilities for Text
-==========================
+Embulk text processor for Embulk plugins
+=========================================
 
 For Embulk plugin developers
 -----------------------------
 
-* [Javadoc](https://dev.embulk.org/embulk-util-csv/)
+* [Javadoc](https://dev.embulk.org/embulk-util-text/)
 
 For Maintainers
 ----------------
