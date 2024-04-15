@@ -6,6 +6,8 @@ junit4 = "4.13.2"
 embulk-core = "0.10.44"
 guava =  "18.0"
 
+checkstyle = "9.3"
+
 [libraries]
 embulk-spi = { group = "org.embulk", name = "embulk-spi", version.ref = "embulk-spi" }
 embulk-util-file = { group = "org.embulk", name = "embulk-util-file", version.ref = "embulk-util-file" }
